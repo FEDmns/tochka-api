@@ -37,51 +37,51 @@ class TochkaAPI
     /**
      *  Метод получения списка доступных счетов
      *
-     * @return Collection
+     * @return mixed
      */
     public function getAccounts()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts');
 
-        return $response->collect();
+        return $response->object()->Data->Account;
     }
 
     /**
      *  Метод получения информации по конкретному счёту
      *
      * @param string $accountId
-     * @return Collection
+     * @return mixed
      */
     public function getAccount($accountId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId);
 
-        return $response->collect();
+        return $response->object()->Data;
     }
 
     /**
      *  Метод получения баланса по нескольким счетам
      *
-     * @return Collection
+     * @return mixed
      */
     public function getBalances()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'balances');
 
-        return $response->collect();
+        return $response->object()->Data->Balance;
     }
 
     /**
      *  Метод получения информации о балансе конкретного счета
      *
      * @param string $accountId
-     * @return Collection
+     * @return mixed
      */
     public function getBalance($accountId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId.'/balances');
 
-        return $response->collect();
+        return $response->object()->Data->Balance;
     }
 
     /**
@@ -90,7 +90,7 @@ class TochkaAPI
      * @param string $accountId
      * @param string $startDateTime Начало переода
      * @param string $endDateTime Конец периода
-     * @return Collection
+     * @return mixed
      */
     public function createStatement($accountId, $startDateTime, $endDateTime)
     {
@@ -106,19 +106,19 @@ class TochkaAPI
 
         $response = Http::withToken($this->access_token)->post($this->api_url.'statements', $param);
 
-        return $response->collect();
+        return $response->object()->Data->Statement;
     }
 
     /**
      *  Метод получения списка доступных выписок
      *
-     * @return Collection
+     * @return mixed
      */
     public function getStatements()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'statements');
 
-        return $response->collect();
+        return $response->object()->Data->Statement;
     }
 
     /**
@@ -126,13 +126,13 @@ class TochkaAPI
      *
      * @param string $accountId
      * @param string $statementId
-     * @return Collection
+     * @return mixed
      */
     public function getStatement($accountId, $statementId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId.'/statements/'.$statementId);
 
-        return $response->collect();
+        return $response->object()->Data->Statement;
     }
 
 }
