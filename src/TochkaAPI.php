@@ -6,17 +6,39 @@ namespace FEDmns\TochkaAPI;
 use Illuminate\Support\Facades\Http;
 use phpDocumentor\Reflection\Types\Collection;
 
+/**
+ * Class TochkaAPI
+ * @package FEDmns\TochkaAPI
+ */
 class TochkaAPI
 {
 
+    /**
+     * @var string
+     */
     private $api_url = 'https://enter.tochka.com/uapi/open-banking/v1.0/';
+
+    /**
+     *  access_token для доступа к API
+     *
+     * @var string
+     */
     private $access_token;
 
+    /**
+     * TochkaAPI constructor.
+     * @param string $access_token access_token для доступа к API
+     */
     public function __construct($access_token)
     {
         $this->access_token= $access_token;
     }
 
+    /**
+     *  Метод получения списка доступных счетов
+     *
+     * @return Collection
+     */
     public function getAccounts()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts');
@@ -24,6 +46,12 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод получения информации по конкретному счёту
+     *
+     * @param string $accountId
+     * @return Collection
+     */
     public function getAccount($accountId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId);
@@ -31,6 +59,11 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод получения баланса по нескольким счетам
+     *
+     * @return Collection
+     */
     public function getBalances()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'balances');
@@ -38,6 +71,12 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод получения информации о балансе конкретного счета
+     *
+     * @param string $accountId
+     * @return Collection
+     */
     public function getBalance($accountId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId.'/balances');
@@ -45,6 +84,14 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод создания выписки по конкретному счету
+     *
+     * @param string $accountId
+     * @param string $startDateTime Начало переода
+     * @param string $endDateTime Конец периода
+     * @return Collection
+     */
     public function createStatement($accountId, $startDateTime, $endDateTime)
     {
         $param =    ["Data" =>
@@ -62,6 +109,11 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод получения списка доступных выписок
+     *
+     * @return Collection
+     */
     public function getStatements()
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'statements');
@@ -69,6 +121,13 @@ class TochkaAPI
         return $response->collect();
     }
 
+    /**
+     *  Метод получения конкретной выписки
+     *
+     * @param string $accountId
+     * @param string $statementId
+     * @return Collection
+     */
     public function getStatement($accountId, $statementId)
     {
         $response = Http::withToken($this->access_token)->get($this->api_url.'accounts/'.$accountId.'/statements/'.$statementId);

@@ -7,29 +7,73 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 
+/**
+ * Class TochkaAPIAuth
+ * @package FEDmns\TochkaAPI
+ */
 class TochkaAPIAuth
 {
 
+    /**
+     * @var string
+     */
     private string $client_id = '';
+    /**
+     * @var string
+     */
     private string $client_secret = '';
-    private string $redirect_uri = '';
 
+    /**
+     * @var string
+     */
     private string $grant_type_cl = 'client_credentials';
+    /**
+     * @var string
+     */
     private string $grant_type_au = 'authorization_code';
+    /**
+     * @var string
+     */
     private string $grant_type_re = 'refresh_token';
+    /**
+     * @var string
+     */
     private string $scope = 'accounts cards customers sbp payments';
+    /**
+     * @var string
+     */
     private string $state = 'qwe';
 
+    /**
+     * @var bool|string
+     */
     private bool|string $access_token = '';
+    /**
+     * @var bool|string
+     */
     private bool|string $refresh_token = '';
+    /**
+     * @var bool|string
+     */
     private bool|string $consentId = '' ;
 
+    /**
+     * TochkaAPIAuth constructor.
+     * @param $client_id
+     * @param $client_secret
+     * @param $redirect_uri
+     */
     public function __construct($client_id, $client_secret, $redirect_uri) {
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
         $this->redirect_uri = $redirect_uri;
     }
 
+    /**
+     *  Начало авторизации по oAuth
+     *
+     * @return false|string Url для перехода в банк для подтверждения разрешений. После чего доступен Code
+     */
     public function oAuth()
     {
         $this->receiveAccessToken();
@@ -44,6 +88,10 @@ class TochkaAPIAuth
         }
     }
 
+    /**
+     *  oAuth авторизацию по принципу client_credentials
+     *
+     */
     private function receiveAccessToken()
     {
         $param = [
@@ -65,6 +113,11 @@ class TochkaAPIAuth
         }
     }
 
+    /**
+     *  Создать список разрешений
+     *
+     * @return false|string Возвращает consentId для использования в getConfirmConsentUrl
+     */
     private function createConsent()
     {
         $param = ["Data" => [
@@ -103,6 +156,11 @@ class TochkaAPIAuth
         }
     }
 
+    /**
+     *  Возвращает ссылку для подтверждения разрешений в банке
+     *
+     * @return string Url
+     */
     private function getConfirmConsentUrl()
     {
         $str = 'https://enter.tochka.com/connect/authorize?client_id='.$this->client_id.'&response_type=code'.
@@ -111,7 +169,14 @@ class TochkaAPIAuth
         return $str;
     }
 
-    public function getTokens($code)
+    /**
+     *  Запрос на выдачу
+     *
+     * @param string $code Код полученный после подтверждения разрешений в банке
+     * @param string $redirect_uri Url прописываемый в банке при регистрации
+     * @return array возвращает client_id, access_token, refresh_token
+     */
+    public function getTokens($code, $redirect_uri)
     {
         $param = [
             'client_id' => $this->client_id,
@@ -119,7 +184,7 @@ class TochkaAPIAuth
             'grant_type' => $this->grant_type_au,
             'scope' => $this->scope,
             'code' => $code,
-            'redirect_uri' => $this->redirect_uri
+            'redirect_uri' => $redirect_uri
         ];
         $response = Http::asForm()->post('https://enter.tochka.com/connect/token', $param);
         $data = json_decode($response);
@@ -137,8 +202,12 @@ class TochkaAPIAuth
         return ['client_id' => $this->client_id, 'access_token' => $this->access_token, 'refresh_token' => $this->refresh_token];
     }
 
+    /**
+     * @param string $refresh_token refresh_token используемый для получения нового access_token
+     * @return array возвращает client_id, access_token, refresh_token
+     */
     public function refreshTokens($refresh_token)
-    { // возвращает client_id, access_token, refresh_token
+    { //
         $param = [
             'client_id' => $this->client_id,
             'client_secret' => $this->client_secret,
